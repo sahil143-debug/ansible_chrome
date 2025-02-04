@@ -17,3 +17,11 @@ $thumbprint = $cert.Thumbprint -replace ' ', '' -replace '\+', ''  # Clean the t
 
 # Create the WinRM listener for HTTPS using the cleaned-up thumbprint
 winrm create winrm/config/Listener?Address=*+Transport=HTTPS "@{Hostname='$hostname';CertificateThumbprint='$thumbprint'}"
+
+
+$hostname = $(hostname)  # Ensure the hostname is set correctly
+$thumbprint = $cert.Thumbprint -replace ' ', '' -replace '\+', ''  # Clean the thumbprint
+
+# Create the WinRM listener for HTTPS using the correct syntax
+$command = "winrm create winrm/config/Listener?Address=*+Transport=HTTPS '@{Hostname=`"$hostname`";CertificateThumbprint=`"$thumbprint`"}'"
+Invoke-Expression $command
