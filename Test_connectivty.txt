@@ -1,0 +1,12 @@
+ansible -i hosts.ini servers -m ping
+
+[servers]
+server1 ansible_host=192.168.1.10
+server2 ansible_host=192.168.1.20
+
+host.ini(file name)
+
+
+wget -O edge.msi https://msedge.sf.dl.delivery.mp.microsoft.com/filestreamingservice/files/latest/edgeenterprise_x64.msi
+
+wget -O chrome.msi https://dl.google.com/dl/chrome/install/googlechromestandaloneenterprise64.msi
