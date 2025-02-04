@@ -1,0 +1,13 @@
+# Generate a self-signed certificate for WinRM
+$cert = New-SelfSignedCertificate -DnsName $(hostname) -CertStoreLocation Cert:\LocalMachine\My
+
+# Store the thumbprint for later use
+$thumbprint = $cert.Thumbprint
+
+# Correct the syntax when creating the listener
+$hostname = $(hostname)  # Ensure hostname is correctly set
+$thumbprint = $cert.Thumbprint  # Ensure thumbprint is set correctly
+
+# Create the WinRM listener for HTTPS using the correct syntax
+winrm create winrm/config/Listener?Address=*+Transport=HTTPS '@{Hostname="' + $hostname + '";CertificateThumbprint="' + $thumbprint + '"}'
+winrm enumerate winrm/config/listener
