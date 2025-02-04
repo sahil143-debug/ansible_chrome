@@ -1,0 +1,83 @@
+- name: Install or Update Chrome and Edge using MSI installers
+  hosts: windows
+  gather_facts: no
+  tasks:
+
+    # Check if Chrome is installed
+    - name: Check if Chrome is installed (check for chrome.exe)
+      win_stat:
+        path: 'C:\Program Files\Google\Chrome\Application\chrome.exe'
+      register: chrome_installed
+      ignore_errors: true
+
+    # Check if Edge is installed
+    - name: Check if Microsoft Edge is installed (check for msedge.exe)
+      win_stat:
+        path: 'C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe'
+      register: edge_installed
+      ignore_errors: true
+
+    # Skip Chrome update if Chrome is not installed
+    - name: Skip if Chrome is not installed
+      debug:
+        msg: "Chrome is not installed. Skipping update."
+      when: not chrome_installed.stat.exists
+
+    # Install or update Chrome
+    - name: Install or Update Chrome using MSI installer
+      block:
+        - name: Copy Chrome MSI installer to the target machine
+          win_copy:
+            src: '/home/sahil/Downloads/googlechromestandaloneenterprise64.msi'
+            dest: 'C:\\Temp\\googlechromestandaloneenterprise64.msi'
+            state: present
+
+        - name: Install or Update Chrome using MSI installer
+          win_package:
+            path: 'C:\\Temp\\googlechromestandaloneenterprise64.msi'
+            state: present
+            arguments: '/quiet /norestart'  # Silent install and no restart
+
+        - name: Debug message for Chrome installation or update
+          debug:
+            msg: "Chrome was installed or updated successfully."
+      when: chrome_installed.stat.exists
+
+    # Skip Edge update if Edge is not installed
+    - name: Skip if Microsoft Edge is not installed
+      debug:
+        msg: "Microsoft Edge is not installed. Skipping update."
+      when: not edge_installed.stat.exists
+
+    # Install or update Microsoft Edge
+    - name: Install or Update Microsoft Edge using MSI installer
+      block:
+        - name: Copy Edge MSI installer to the target machine
+          win_copy:
+            src: '/home/sahil/Downloads/MicrosoftEdgeEnterpriseX64.msi'
+            dest: 'C:\\Temp\\MicrosoftEdgeEnterpriseX64.msi'
+            state: present
+
+        - name: Install or Update Microsoft Edge using MSI installer
+          win_package:
+            path: 'C:\\Temp\\MicrosoftEdgeEnterpriseX64.msi'
+            product_id: '{B24D8489-72F9-4C90-9446-9D72A775D9C4}'
+            state: present
+            arguments: '/quiet /norestart'  # Silent install and no restart
+
+        - name: Debug message for Microsoft Edge installation or update
+          debug:
+            msg: "Microsoft Edge was installed or updated successfully."
+      when: edge_installed.stat.exists
+      
+    - name: Remove installation files (Chrome, Edge, and 7Zip)
+      ansible.builtin.win_file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - C:\\Temp\\googlechromestandaloneenterprise64.msi
+        - C:\\Temp\\MicrosoftEdgeEnterpriseX64.msi
+
+      
+      
+
